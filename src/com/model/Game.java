@@ -35,8 +35,7 @@ public class Game {
 	static int numbers = 0;
 	static long lastFrame;
 	static long currentFrame;
-	private static String vertexShaderPath = "src/com/model/vertexShader.vert";
-	private static String fragmentShaderPath = "src/com/model/fragmentShader.frag";
+
 	private static float[] mousePos;
 
 	static float[] congregationPoint = new float[] { 0f, 0f };
@@ -45,10 +44,11 @@ public class Game {
 
 	public static void start() {
 		Game.init();
-		int numbers = 2;
-		float minSize = 0.002f;
-		float maxSize = 0.006f;
+		int numbers = 1000000;
+		float minSize = 0.02f;
+		float maxSize = 0.06f;
 		ObjectTools.createRandomVector3(numbers, minSize, maxSize);
+//		ObjectTools.createVector3(1, 0.2f, 0.2f);
 		lastFrame = System.currentTimeMillis();
 		gameLoop();
 	}
@@ -61,16 +61,13 @@ public class Game {
 			currentFrame = System.currentTimeMillis();
 			if (checkFrame(interval)) {
 				lastFrame = System.currentTimeMillis();
-				ObjectTools.moveTo(congregationPoint);
-				ObjectTools.updateRandomVector3(randomArea[0], randomArea[1]);
+//				ObjectTools.moveTo(congregationPoint);
+//				ObjectTools.updateRandomVector3(randomArea[0], randomArea[1]);
 			}
 
 			checkInput();
 
-			for (int i = 0; i < 10; i++) {
-				ObjectTools.addVect3(0.002f, 0.006f);
-			}
-			System.out.println("@OBJECTS:" + ObjectTools.vec3Storage.length);
+//			System.out.println("@OBJECTS:" + ObjectTools.vec3Storage.length);
 			// System.out.println(mousePos[0] + " " + mousePos[1]);
 			render();
 
@@ -157,22 +154,38 @@ public class Game {
 		Game.createDisplay();
 		shProg = new ShaderProgram();
 		shProg.init();
-		shProg.attachVertexShader(vertexShaderPath);
-		shProg.attachFragmentShader(fragmentShaderPath);
+		shProg.attachVertexShader(ObjectTools.vertexShaderPath);
+		shProg.attachFragmentShader(ObjectTools.fragmentShaderPath);
 		shProg.link();
-
+		shProg.initUniform();
 		try {
 			Keyboard.create();
 			Keyboard.enableRepeatEvents(true);
 		} catch (LWJGLException ex) {
 			ex.printStackTrace();
 		}
-		glEnable(GL_POINT_SPRITE);
-		glEnable(GL_BLEND);
+//		glEnable(GL_POINT_SPRITE);
+//		glEnable(GL_BLEND);
 
 	}
 
 	public static void render() {
+		initRender();
+		
+		
+//		glUniform2f(shProg.uniformOffsetLocation, -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[0], -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[1]);
+		
+		// glDrawArrays(int mode, int first, int count)
+		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.vec3Storage.length * 3); // drawing
+		// vertex x
+		// 3
+//		glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); // drawing
+																		// point
+		
+		cleanupRender();
+	}
+	
+	public static void initRender(){
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // screen clear color
 		glClear(GL_COLOR_BUFFER_BIT); // clears the screen
 
@@ -182,20 +195,15 @@ public class Game {
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 
-		// glDrawArrays(int mode, int first, int count)
-		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.vec3Storage.length * 3); // drawing
-		// vertex x
-		// 3
-		glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); // drawing
-																		// point
-
+	}
+	
+	public static void cleanupRender(){
 		glDisableVertexAttribArray(0); // disabling location 0
 		glDisableVertexAttribArray(1); // disabling location 1
 		glBindVertexArray(0); // unbinding vao
-
 		shProg.unBind();
 	}
-
+	
 	public static long getTime() {
 		return System.currentTimeMillis();
 	}

@@ -100,8 +100,6 @@ public class Vector3 { // vertices should be defined counterClockwise
         C.Y = CY;
     }
 
-
-
     public boolean collisionCheck(float X, float Y, float minusX, float minusY) {
         return A.X < X && A.Y < Y && A.X > minusX && A.Y > minusY;
     }
