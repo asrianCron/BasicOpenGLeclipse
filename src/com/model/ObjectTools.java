@@ -79,11 +79,13 @@ public class ObjectTools {
 		glBindVertexArray(0); // unbinding vao
 	}
 	
-	static Polygon3 getClickedPoly(float[] mousePos){
+	static Object[] getClickedPoly(float[] mousePos, float range){
 		// to check if a point is inside the triangle, we need to calculate the click's barycentric coordinates
 		//alpha, beta, gamma
 		
-		float alpha, beta, gamma;
+		float alpha; // how close mousePos is to poly.A
+		float beta;  // how close mousePos is to poly.B
+		float gamma; // how close mousePos is to poly.C
 		Polygon3 poly;
 		for(int i=0;i<poly3Storage.length;i++){
 			poly = poly3Storage[i];
@@ -93,10 +95,15 @@ public class ObjectTools {
 			beta = ((poly.getVertex(2).getY() - poly.getVertex(0).getY()) * (mousePos[0] - poly.getVertex(2).getX()) + (poly.getVertex(0).getX() - poly.getVertex(2).getX()) * (mousePos[1] - poly.getVertex(2).getY())) 
 					/ ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (poly.getVertex(0).getX() - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (poly.getVertex(0).getY() - poly.getVertex(2).getY()));
 			gamma = 1.0f - alpha - beta;
-			if(alpha > 0 && beta > 0 && gamma > 0 && alpha < 1 && beta < 1 && gamma < 1){
+			if(alpha > 0-range && beta > 0-range && gamma > 0-range && alpha < 1+range && beta < 1+range && gamma < 1+range){
 				System.out.println(alpha + " " + beta + " " + gamma);
-				return poly;
+				Object[] result = new Object[4];
+				result[0] = poly;
+				result[1] = alpha;
+				result[2] = gamma;
+				return result;
 			}
+//			System.out.println(alpha + " " + beta + " " + gamma);
 			poly = null;
 		}
 		return null;

@@ -37,11 +37,11 @@ public class Game {
 
 	public static void start() {
 		Game.init();
-		int numbers = 100000;
-		float minSize = 0.002f;
-		float maxSize = 0.006f;
-		ObjectTools.createRandomPolygon3(numbers, minSize, maxSize);
-//		ObjectTools.createPolygon3(1, 0.2f, 0.2f);
+		int numbers = 3;
+		float minSize = 0.02f;
+		float maxSize = 0.06f;
+//		ObjectTools.createRandomPolygon3(numbers, minSize, maxSize);
+		ObjectTools.createPolygon3(1, 0.2f, 0.2f);
 		lastFrame = System.currentTimeMillis();
 		gameLoop();
 	}
@@ -55,14 +55,15 @@ public class Game {
 			if (checkFrame(interval)) {
 				lastFrame = System.currentTimeMillis();
 //				ObjectTools.moveTo(congregationPoint);
-				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
+//				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
 			}
 
 			checkInput();
-
+			ObjectTools.updatePolygon3(Utils.getMultipleVectors3(ObjectTools.poly3Storage));
+			ObjectTools.updateColor(Utils.getMultipleColors(ObjectTools.colStorage));
 //			System.out.println("@OBJECTS:" + ObjectTools.vec3Storage.length);
 //			 System.out.println(mousePos[0] + " " + mousePos[1]);
-//			ObjectTools.update();
+
 			render();
 
 			if (Display.wasResized()) {
@@ -70,6 +71,7 @@ public class Game {
 			}
 			Display.update();
 			Display.sync(60);
+			
 			if (!running || Display.isCloseRequested()
 					|| Input.isKeyPressed(Input.KEY_ESCAPE)) {
 				Game.exit();
@@ -99,7 +101,12 @@ public class Game {
 //		}
 		
 		if(Input.isMouseDown(0)){
-			ObjectTools.getClickedPoly(mousePos);
+			Object[] arg = ObjectTools.getClickedPoly(mousePos,0.2f);
+			if(arg != null){
+				if((float)arg[1] > 0.8f){
+					((Polygon3)arg[0]).setVertice(0, mousePos);
+				}
+			}
 		}
 		
 		if (Input.isMouseDown(1)) {
@@ -175,12 +182,9 @@ public class Game {
 //		glUniform2f(shProg.uniformOffsetLocation, -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[0], -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[1]);
 		
 		// glDrawArrays(int mode, int first, int count)
-		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.poly3Storage.length * 3); // drawing
-		// vertex x
-		// 3
+		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.poly3Storage.length * 3);
 //		glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); // drawing
 																		// point
-		
 		cleanupRender();
 	}
 	
