@@ -27,12 +27,10 @@ public class ObjectTools {
 	static int vertexArrayObjId;
 	static int vertexBufferObjId;
 	static int colorBufferObjId;
-	static List<Polygon3> vect3List = new ArrayList<>();
-	static List<V3Color> vect3ColorList = new ArrayList<>();
 	static FloatBuffer vertexBuffer, colorBuffer;
 
-	static Polygon3[] vec3Storage;
-	static VColor[] col3Storage;
+	static Polygon3[] poly3Storage;
+	static VColor[] colStorage;
 	
 	static void addVect3(float minSize, float maxSize) {
 		float size = randFloat(minSize, maxSize);
@@ -40,24 +38,25 @@ public class ObjectTools {
 
 		input.addXOffset(randFloat(-1f, 1f));
 		input.addYOffset(randFloat(-1f, 1f));
-		input.save();
 
-		Polygon3[] vect3TempStorage = new Polygon3[vec3Storage.length + 1];
-		V3Color[] color3TempStorage = new V3Color[col3Storage.length + 1];
+		Polygon3[] poly3TempStorage = new Polygon3[poly3Storage.length + 1];
+		VColor[] colorTempStorage = new VColor[colStorage.length + 3];
 
-		System.arraycopy(vec3Storage, 0, vect3TempStorage, 0,
-				vec3Storage.length);
-		vect3TempStorage[vect3TempStorage.length - 1] = input;
-		vec3Storage = vect3TempStorage;
+		System.arraycopy(poly3Storage, 0, poly3TempStorage, 0,
+				poly3Storage.length);
+		poly3TempStorage[poly3TempStorage.length - 1] = input;
+		poly3Storage = poly3TempStorage;
 
-		System.arraycopy(col3Storage, 0, color3TempStorage, 0,
-				col3Storage.length);
-		color3TempStorage[color3TempStorage.length - 1] = input.color;
-		col3Storage = color3TempStorage;
+		System.arraycopy(colStorage, 0, colorTempStorage, 0,
+				colStorage.length);
+		colorTempStorage[colorTempStorage.length - 3] = input.getColor(0);
+		colorTempStorage[colorTempStorage.length - 2] = input.getColor(1);
+		colorTempStorage[colorTempStorage.length - 1] = input.getColor(2);
+		colStorage = colorTempStorage;
 
-		vertexBuffer = BufferUtils.createFloatBuffer(vec3Storage.length * 6);
-		colorBuffer = BufferUtils.createFloatBuffer(col3Storage.length * 4 * 3);
-		vertexBuffer.put(Utils.getMultipleVectors3(vec3Storage)); 
+		vertexBuffer = BufferUtils.createFloatBuffer(poly3Storage.length * 6);
+		colorBuffer = BufferUtils.createFloatBuffer(colStorage.length * 4);
+		vertexBuffer.put(Utils.getMultipleVectors3(poly3Storage)); 
 		vertexBuffer.rewind(); // rewinded the buffer for reading; position = 0
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjId);
@@ -68,7 +67,7 @@ public class ObjectTools {
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		colorBuffer.put(Utils.getMultipleColors(col3Storage));
+		colorBuffer.put(Utils.getMultipleColors(colStorage));
 		colorBuffer.rewind(); // rewinded the buffer for reading; position = 0
 
 		glBindVertexArray(vertexArrayObjId); // binding the vao; we can't send
@@ -80,23 +79,23 @@ public class ObjectTools {
 		glBindVertexArray(0); // unbinding vao
 	}
 
-	static void updateSnow(float downFall, float minSize, float maxSize) {
-
-		float size = ObjectTools.randFloat(minSize, maxSize);
-
-		for (int i = 0; i < vec3Storage.length; i++) {
-			if (vec3Storage[i].B.Y < -1) {
-				vec3Storage[i] = new Polygon3(0.0f, size, size, -size, -size,
-						-size);
-				vec3Storage[i].addXOffset(ObjectTools.randFloat(-1f, 1f));
-				vec3Storage[i].addYOffset(ObjectTools.randFloat(-1f, 1f));
-			} else {
-				vec3Storage[i].addYOffset(downFall);
-			}
-		}
-		updatePolygon3(Utils.getMultipleVectors3(vec3Storage));
-		updateColor(Utils.getMultipleColors(col3Storage));
-	}
+//	static void updateSnow(float downFall, float minSize, float maxSize) {
+//
+//		float size = ObjectTools.randFloat(minSize, maxSize);
+//
+//		for (int i = 0; i < poly3Storage.length; i++) {
+//			if (poly3Storage[i].B.Y < -1) {
+//				poly3Storage[i] = new Polygon3(0.0f, size, size, -size, -size,
+//						-size);
+//				poly3Storage[i].addXOffset(ObjectTools.randFloat(-1f, 1f));
+//				poly3Storage[i].addYOffset(ObjectTools.randFloat(-1f, 1f));
+//			} else {
+//				poly3Storage[i].addYOffset(downFall);
+//			}
+//		}
+//		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
+//		updateColor(Utils.getMultipleColors(colStorage));
+//	}
 
 	static void moveTo(Polygon3 vert, float[] destination) {
 
@@ -106,11 +105,11 @@ public class ObjectTools {
 		// destination[0], destination[1])) / 100);
 
 		vert.addXOffset(-GameMath.calculateOffset(destination[0],
-				destination[1], vert.A.X, vert.A.Y, 100)[0]);
+				destination[1], vert.getVertex(0).getX(), vert.getVertex(0).getY(), 100)[0]);
 		vert.addYOffset(-GameMath.calculateOffset(destination[0],
-				destination[1], vert.A.X, vert.A.Y, 100)[1]);
-		updatePolygon3(Utils.getMultipleVectors3(vec3Storage));
-		updateColor(Utils.getMultipleColors(col3Storage));
+				destination[1], vert.getVertex(0).getX(), vert.getVertex(0).getY(), 100)[1]);
+		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
+		updateColor(Utils.getMultipleColors(colStorage));
 	}
 
 	static void moveTo(float[] destination) {
@@ -120,62 +119,78 @@ public class ObjectTools {
 		// vert.addYOffset((float) (GameMath.getSlope(vert.A.X, vert.A.Y,
 		// destination[0], destination[1])) / 100);
 
-		for (int i = 0; i < vec3Storage.length; i++) {
-			vec3Storage[i].addXOffset(-GameMath
+		for (int i = 0; i < poly3Storage.length; i++) {
+			poly3Storage[i].addXOffset(-GameMath
 					.calculateOffset(destination[0], destination[1],
-							vec3Storage[i].A.X, vec3Storage[i].A.Y, 50f)[0]);
-			vec3Storage[i].addYOffset(-GameMath
+							poly3Storage[i].getVertex(0).getX(), poly3Storage[i].getVertex(0).getY(), 50f)[0]);
+			poly3Storage[i].addYOffset(-GameMath
 					.calculateOffset(destination[0], destination[1],
-							vec3Storage[i].A.X, vec3Storage[i].A.Y, 50f)[1]);
+							poly3Storage[i].getVertex(0).getX(), poly3Storage[i].getVertex(0).getY(), 50f)[1]);
 		}
-		updatePolygon3(Utils.getMultipleVectors3(vec3Storage));
-		updateColor(Utils.getMultipleColors(col3Storage));
+		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
+		updateColor(Utils.getMultipleColors(colStorage));
 	}
 	
 
 	static void createRandomPolygon3(int numbers, float minSize, float maxSize) {
 
-		vec3Storage = new Polygon3[numbers];
-		col3Storage = new V3Color[numbers];
+		poly3Storage = new Polygon3[numbers];
+		colStorage = new VColor[numbers * 3];
 		float size;
 		for (int i = 0; i < numbers; i++) {
 			size = ObjectTools.randFloat(minSize, maxSize);
-			vec3Storage[i] = new Polygon3(0.0f, size, size, -size, -size, -size);
-			col3Storage[i] = vec3Storage[i].color;
-			vec3Storage[i].addXOffset(ObjectTools.randFloat(-1f, 1f));
-			vec3Storage[i].addYOffset(ObjectTools.randFloat(-1f, 1f));
-			vec3Storage[i].save();
+			poly3Storage[i] = new Polygon3(0.0f, size, size, -size, -size, -size);
+			poly3Storage[i].addXOffset(ObjectTools.randFloat(-1f, 1f));
+			poly3Storage[i].addYOffset(ObjectTools.randFloat(-1f, 1f));
 		}
+		
+		int polyIndex = 0;
+		
+		for(int i=0;i < colStorage.length;i+=3){
+			colStorage[i] = poly3Storage[polyIndex].getColor(0);
+			colStorage[i+1] = poly3Storage[polyIndex].getColor(1);
+			colStorage[i+2] = poly3Storage[polyIndex].getColor(2);
+			polyIndex++;
+		}
+		
 		Game.numbers = numbers;
-		sendPolygon3(Utils.getMultipleVectors3(vec3Storage));
-		sendColor(Utils.getMultipleColors(col3Storage));
+		sendPolygon3(Utils.getMultipleVectors3(poly3Storage));
+		sendColor(Utils.getMultipleColors(colStorage));
 	}
 
 	static void createPolygon3(int numbers, float minSize, float maxSize) {
 
-		vec3Storage = new Polygon3[numbers];
-		col3Storage = new V3Color[numbers];
+		poly3Storage = new Polygon3[numbers];
+		colStorage = new VColor[numbers * 3];
 		float size;
 		for (int i = 0; i < numbers; i++) {
 			size = ObjectTools.randFloat(minSize, maxSize);
-			vec3Storage[i] = new Polygon3(0.0f, size, size, -size, -size, -size);
-			col3Storage[i] = vec3Storage[i].color;
-			vec3Storage[i].save();
+			poly3Storage[i] = new Polygon3(0.0f, size, size, -size, -size, -size);
 		}
+		
+		int polyIndex = 0;
+		
+		for(int i=0;i < colStorage.length;i+=3){
+			colStorage[i] = poly3Storage[polyIndex].getColor(0);
+			colStorage[i+1] = poly3Storage[polyIndex].getColor(1);
+			colStorage[i+2] = poly3Storage[polyIndex].getColor(2);
+			polyIndex++;
+		}
+		
 		Game.numbers = numbers;
-		sendPolygon3(Utils.getMultipleVectors3(vec3Storage));
-		sendColor(Utils.getMultipleColors(col3Storage));
+		sendPolygon3(Utils.getMultipleVectors3(poly3Storage));
+		sendColor(Utils.getMultipleColors(colStorage));
 	}
 	
 	public static void updateRandomPolygon3(float bot, float top) {
 
-		for (int i = 0; i < vec3Storage.length; i++) {
-			vec3Storage[i].addXOffset(ObjectTools.randFloat(bot, top));
-			vec3Storage[i].addYOffset(ObjectTools.randFloat(bot, top));
+		for (int i = 0; i < poly3Storage.length; i++) {
+			poly3Storage[i].addXOffset(ObjectTools.randFloat(bot, top));
+			poly3Storage[i].addYOffset(ObjectTools.randFloat(bot, top));
 		}
 
-		updatePolygon3(Utils.getMultipleVectors3(vec3Storage));
-		updateColor(Utils.getMultipleColors(col3Storage));
+		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
+		updateColor(Utils.getMultipleColors(colStorage));
 	}
 
 	public static void sendPolygon3(float[] array) { // location 0

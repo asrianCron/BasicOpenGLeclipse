@@ -44,11 +44,11 @@ public class Game {
 
 	public static void start() {
 		Game.init();
-		int numbers = 1000000;
+		int numbers = 2000;
 		float minSize = 0.02f;
 		float maxSize = 0.06f;
-		ObjectTools.createRandomVector3(numbers, minSize, maxSize);
-//		ObjectTools.createVector3(1, 0.2f, 0.2f);
+		ObjectTools.createRandomPolygon3(numbers, minSize, maxSize);
+//		ObjectTools.createPolygon3(1, 0.2f, 0.2f);
 		lastFrame = System.currentTimeMillis();
 		gameLoop();
 	}
@@ -61,8 +61,8 @@ public class Game {
 			currentFrame = System.currentTimeMillis();
 			if (checkFrame(interval)) {
 				lastFrame = System.currentTimeMillis();
-//				ObjectTools.moveTo(congregationPoint);
-//				ObjectTools.updateRandomVector3(randomArea[0], randomArea[1]);
+				ObjectTools.moveTo(congregationPoint);
+				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
 			}
 
 			checkInput();
@@ -176,7 +176,7 @@ public class Game {
 //		glUniform2f(shProg.uniformOffsetLocation, -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[0], -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[1]);
 		
 		// glDrawArrays(int mode, int first, int count)
-		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.vec3Storage.length * 3); // drawing
+		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.poly3Storage.length * 3); // drawing
 		// vertex x
 		// 3
 //		glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); // drawing

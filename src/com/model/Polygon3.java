@@ -15,15 +15,16 @@ public class Polygon3 extends Polygon{
     }
     
     public void addXOffset(float offset) {
-        A.X += offset;
-//        this.getVertex(0).setVertex(this.getVertex(0).getVertex()[0] + offset);
-        B.X += offset;
-        C.X += offset;
+
+        getVertex(0).setX(getVertex(0).getX() + offset);
+        getVertex(1).setX(getVertex(1).getX() + offset);
+        getVertex(2).setX(getVertex(2).getX() + offset);
+        
     }
 
     public void addYOffset(float offset) {
-        A.Y += offset;
-        B.Y += offset;
-        C.Y += offset;
+        getVertex(0).setY(getVertex(0).getY() + offset);
+        getVertex(1).setY(getVertex(1).getY() + offset);
+        getVertex(2).setY(getVertex(2).getY() + offset);
     }
 }

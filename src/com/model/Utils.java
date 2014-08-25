@@ -53,8 +53,8 @@ public class Utils {
     	return (int) (pos * halfCoord + halfCoord);
     }
     
-    public static float[] getMultipleVectors3(Vector3[] vects) {
-        float[] output = new float[6 * vects.length];
+    public static float[] getMultipleVectors3(Polygon3[] polys) {
+        float[] output = new float[6 * polys.length];
 //        
 //        int index = 0;
 //        for (int i = 0; i < vects.length; i++) {
@@ -66,18 +66,15 @@ public class Utils {
 //        }
         
     	
-    	for(int i=0;i<vects.length;i++){
-    		System.arraycopy(vects[i].getArray(), 0, output, i * 6, 6);
+    	for(int i=0;i<polys.length;i++){
+    		System.arraycopy(polys[i].getVerticesArray(), 0, output, i * 6, 6);
     	}
-        
         return output;
-
-
 
     }
 
-    public static float[] getMultipleColors(V3Color[] colors) {
-        float[] output = new float[4 * 3 * colors.length];
+    public static float[] getMultipleColors(VColor[] colors) {
+        float[] output = new float[4 * colors.length];
         
 //        int index = 0;
 //        for (int i = 0; i < colors.length; i++) {
@@ -89,9 +86,8 @@ public class Utils {
 //        }
         
     	for(int i=0;i<colors.length;i++){
-    		System.arraycopy(colors[i].getArray(), 0, output, i * 4 * 3, 4 * 3);
+    		System.arraycopy(colors[i].getColor(), 0, output, i * 4, 4);
     	}
-        
         return output;
     }
     

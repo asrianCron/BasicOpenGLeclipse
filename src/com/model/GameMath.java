@@ -3,10 +3,10 @@ package com.model;
 public class GameMath {
 
 	public static float getSlope(Vertex x1, Vertex x2) {
-		if (x1.X - x2.X == 0) {
+		if (x1.getX() - x2.getX() == 0) {
 			return 0;
 		}
-		return (x1.Y - x2.Y) / (x1.X - x2.X);
+		return (x1.getY() - x2.getY()) / (x1.getX() - x2.getX());
 
 	}
 

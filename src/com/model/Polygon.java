@@ -15,18 +15,14 @@ public class Polygon {
 	}
 	
     public Polygon(Vertex A, Vertex B, Vertex C) {
-		for(int i=0;i<3;i++){
-			colors[i] = new VColor();
-		}
+		this();
     	vertices[0] =  A;
     	vertices[1] =  B;
     	vertices[2] =  C;
     }
 
     public Polygon(float AX, float AY, float BX, float BY, float CX, float CY) {
-		for(int i=0;i<3;i++){
-			colors[i] = new VColor();
-		}
+    	this();
         vertices[0] = new Vertex(AX, AY);
         vertices[1] = new Vertex(BX, BY);
         vertices[2] = new Vertex(CX, CY);
@@ -97,6 +93,14 @@ public class Polygon {
 			throw new IllegalArgumentException();
 		}
 		colors[index].setColor(color);
+	}
+	@Override
+	public String toString(){
+		String result;
+		
+		result = "Polygon: {\n" + getVertex(0).toString() + "\n" + getVertex(1).toString() + "\n" + getVertex(2).toString() + "\n}"; 
+		
+		return result;
 	}
 	
 }
