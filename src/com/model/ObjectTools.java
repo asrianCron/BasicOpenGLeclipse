@@ -109,23 +109,6 @@ public class ObjectTools {
 		return null;
 	}
 	
-//	static void updateSnow(float downFall, float minSize, float maxSize) {
-//
-//		float size = ObjectTools.randFloat(minSize, maxSize);
-//
-//		for (int i = 0; i < poly3Storage.length; i++) {
-//			if (poly3Storage[i].B.Y < -1) {
-//				poly3Storage[i] = new Polygon3(0.0f, size, size, -size, -size,
-//						-size);
-//				poly3Storage[i].addXOffset(ObjectTools.randFloat(-1f, 1f));
-//				poly3Storage[i].addYOffset(ObjectTools.randFloat(-1f, 1f));
-//			} else {
-//				poly3Storage[i].addYOffset(downFall);
-//			}
-//		}
-//		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
-//		updateColor(Utils.getMultipleColors(colStorage));
-//	}
 
 	static void moveTo(Polygon3 vert, float[] destination) {
 

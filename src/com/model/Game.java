@@ -54,8 +54,8 @@ public class Game {
 			currentFrame = System.currentTimeMillis();
 			if (checkFrame(interval)) {
 				lastFrame = System.currentTimeMillis();
-//				ObjectTools.moveTo(congregationPoint);
-//				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
+				ObjectTools.moveTo(congregationPoint);
+				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
 			}
 
 			checkInput();
@@ -172,6 +172,9 @@ public class Game {
 		}
 //		glEnable(GL_POINT_SPRITE);
 //		glEnable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CW);
 
 	}
 
