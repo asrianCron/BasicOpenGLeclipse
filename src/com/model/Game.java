@@ -1,15 +1,8 @@
 package com.model;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.ContextAttribs;
@@ -44,9 +37,9 @@ public class Game {
 
 	public static void start() {
 		Game.init();
-		int numbers = 2000;
-		float minSize = 0.02f;
-		float maxSize = 0.06f;
+		int numbers = 100000;
+		float minSize = 0.002f;
+		float maxSize = 0.006f;
 		ObjectTools.createRandomPolygon3(numbers, minSize, maxSize);
 //		ObjectTools.createPolygon3(1, 0.2f, 0.2f);
 		lastFrame = System.currentTimeMillis();
@@ -61,14 +54,15 @@ public class Game {
 			currentFrame = System.currentTimeMillis();
 			if (checkFrame(interval)) {
 				lastFrame = System.currentTimeMillis();
-				ObjectTools.moveTo(congregationPoint);
+//				ObjectTools.moveTo(congregationPoint);
 				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
 			}
 
 			checkInput();
 
 //			System.out.println("@OBJECTS:" + ObjectTools.vec3Storage.length);
-			// System.out.println(mousePos[0] + " " + mousePos[1]);
+//			 System.out.println(mousePos[0] + " " + mousePos[1]);
+//			ObjectTools.update();
 			render();
 
 			if (Display.wasResized()) {
@@ -96,13 +90,18 @@ public class Game {
 		if (Input.isKeyDown(Input.KEY_D)) {
 			congregationPoint[0] += 0.03f;
 		}
-		if (Input.isMouseDown(0)) {
-			randomArea[0] = -0.09f;
-			randomArea[1] = 0.09f;
-		} else {
-			randomArea[0] = -0.009f;
-			randomArea[1] = 0.009f;
+//		if (Input.isMouseDown(0)) {
+//			randomArea[0] = -0.09f;
+//			randomArea[1] = 0.09f;
+//		} else {
+//			randomArea[0] = -0.009f;
+//			randomArea[1] = 0.009f;
+//		}
+		
+		if(Input.isMouseDown(0)){
+			ObjectTools.getClickedPoly(mousePos);
 		}
+		
 		if (Input.isMouseDown(1)) {
 			congregationPoint[0] = getMousePos()[0];
 			congregationPoint[1] = getMousePos()[1];

@@ -78,7 +78,30 @@ public class ObjectTools {
 		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
 		glBindVertexArray(0); // unbinding vao
 	}
-
+	
+	static Polygon3 getClickedPoly(float[] mousePos){
+		// to check if a point is inside the triangle, we need to calculate the click's barycentric coordinates
+		//alpha, beta, gamma
+		
+		float alpha, beta, gamma;
+		Polygon3 poly;
+		for(int i=0;i<poly3Storage.length;i++){
+			poly = poly3Storage[i];
+			alpha = ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (mousePos[0] - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (mousePos[1] - poly.getVertex(2).getY())) 
+					/ ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (poly.getVertex(0).getX() - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (poly.getVertex(0).getY() - poly.getVertex(2).getY()));
+			
+			beta = ((poly.getVertex(2).getY() - poly.getVertex(0).getY()) * (mousePos[0] - poly.getVertex(2).getX()) + (poly.getVertex(0).getX() - poly.getVertex(2).getX()) * (mousePos[1] - poly.getVertex(2).getY())) 
+					/ ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (poly.getVertex(0).getX() - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (poly.getVertex(0).getY() - poly.getVertex(2).getY()));
+			gamma = 1.0f - alpha - beta;
+			if(alpha > 0 && beta > 0 && gamma > 0 && alpha < 1 && beta < 1 && gamma < 1){
+				System.out.println(alpha + " " + beta + " " + gamma);
+				return poly;
+			}
+			poly = null;
+		}
+		return null;
+	}
+	
 //	static void updateSnow(float downFall, float minSize, float maxSize) {
 //
 //		float size = ObjectTools.randFloat(minSize, maxSize);
@@ -99,11 +122,6 @@ public class ObjectTools {
 
 	static void moveTo(Polygon3 vert, float[] destination) {
 
-		// vert.addXOffset((float) (GameMath.getSlope(vert.A.X, vert.A.Y,
-		// destination[0], destination[1])) / 100);
-		// vert.addYOffset((float) (GameMath.getSlope(vert.A.X, vert.A.Y,
-		// destination[0], destination[1])) / 100);
-
 		vert.addXOffset(-GameMath.calculateOffset(destination[0],
 				destination[1], vert.getVertex(0).getX(), vert.getVertex(0).getY(), 100)[0]);
 		vert.addYOffset(-GameMath.calculateOffset(destination[0],
@@ -113,11 +131,6 @@ public class ObjectTools {
 	}
 
 	static void moveTo(float[] destination) {
-
-		// vert.addXOffset((float) (GameMath.getSlope(vert.A.X, vert.A.Y,
-		// destination[0], destination[1])) / 100);
-		// vert.addYOffset((float) (GameMath.getSlope(vert.A.X, vert.A.Y,
-		// destination[0], destination[1])) / 100);
 
 		for (int i = 0; i < poly3Storage.length; i++) {
 			poly3Storage[i].addXOffset(-GameMath
