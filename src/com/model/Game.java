@@ -40,9 +40,13 @@ public class Game {
 		float minSize = 0.02f;
 		float maxSize = 0.06f;
 //		ObjectTools.createRandomPolygon3(numbers, minSize, maxSize);
-//		ObjectTools.createPolygon3(0, 0.2f, 0.2f);
+//		ObjectTools.createPolygon3(1, 0.2f, 0.2f);
 		ObjectTools.addQuad(0.2f, 0.2f);
-		ObjectTools.addNewVect3(0.2f, 0.2f);
+		ObjectTools.addQuad(0.2f, 0.2f);
+		ObjectTools.addQuad(0.2f, 0.2f);
+		ObjectTools.addQuad(0.2f, 0.2f);
+		ObjectTools.addQuad(0.2f, 0.2f);
+//		ObjectTools.addNewVect3(0.2f, 0.2f);
 		lastFrame = System.currentTimeMillis();
 		gameLoop();
 	}
@@ -55,13 +59,13 @@ public class Game {
 			currentFrame = getTime();
 			if (checkFrame(interval)) {
 				lastFrame = getTime();
-//				ObjectTools.moveTo(congregationPoint);
-//				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
+				ObjectTools.moveTo(congregationPoint);
+				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
 			}
 
 			checkInput();
-			ObjectTools.updatePolygons(Utils.getMultipleVectors3(ObjectTools.polyStorage));
-			ObjectTools.updateColors(Utils.getMultipleColors(ObjectTools.colStorage));
+			ObjectTools.updatePolygons(ObjectTools.storage.getStoredPolyArray());
+			ObjectTools.updateColors(ObjectTools.storage.getStoredVColorArray());
 //			System.out.println("@OBJECTS:" + ObjectTools.vec3Storage.length);
 //			 System.out.println(mousePos[0] + " " + mousePos[1]);
 
@@ -101,16 +105,16 @@ public class Game {
 //			randomArea[1] = 0.009f;
 //		}
 		
-		if(Input.isMouseDown(0)){
-//			ObjectTools.addNewVect3(0.02f, 0.01f);
-			
-			Object[] arg = ObjectTools.getClickedPoly(mousePos,0.2f);
-			if(arg != null){
-				if((float)arg[1] > 0.8f){
-					((Polygon)arg[0]).setVertice(0, mousePos);
-				}
-			}
-		}
+//		if(Input.isMouseDown(0)){
+////			ObjectTools.addNewVect3(0.02f, 0.01f);
+//			
+//			Object[] arg = ObjectTools.getClickedPoly(mousePos,0.2f);
+//			if(arg != null){
+//				if((float)arg[1] > 0.8f){
+//					((Polygon)arg[0]).setVertice(0, mousePos);
+//				}
+//			}
+//		}
 		
 		if (Input.isMouseDown(1)) {
 			congregationPoint[0] = getMousePos()[0];
@@ -185,7 +189,7 @@ public class Game {
 //		glUniform2f(shProg.uniformOffsetLocation, -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[0], -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[1]);
 		
 		// glDrawArrays(int mode, int first, int count)
-		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.polyStorage.length * 3);
+		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.storage.getPolyCount() * 3);
 //		glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); // drawing
 																		// point
 		cleanupRender();

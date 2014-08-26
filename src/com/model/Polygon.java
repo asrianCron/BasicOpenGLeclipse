@@ -4,11 +4,12 @@ public class Polygon {
 	
 	protected Vertex[] vertices;
 	protected VColor[] colors;
-	
+	protected int nVertices;
 	public Polygon(){
-		vertices = new Vertex[3];
-		colors = new VColor[3];
-		for(int i=0;i<3;i++){
+		this.nVertices = 3;
+		vertices = new Vertex[nVertices];
+		colors = new VColor[nVertices];
+		for(int i=0;i<nVertices;i++){
 			vertices[i] = new Vertex();
 			colors[i] = new VColor();
 		}
@@ -106,6 +107,11 @@ public class Polygon {
 		}
 		colors[index].setColor(color);
 	}
+	
+	public int getNVertices(){
+		return nVertices;
+	}
+	
 	@Override
 	public String toString(){
 		return "Polygon: {\n" + getVertex(0).toString() + "\n" + getVertex(1).toString() + "\n" + getVertex(2).toString() + "\n}"; 

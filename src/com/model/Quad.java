@@ -3,9 +3,10 @@ package com.model;
 public class Quad extends Polygon {
 	
 	public Quad(){
-		vertices = new Vertex[6];
-		colors = new VColor[6];
-		for(int i=0;i<6;i++){
+		this.nVertices = 6;
+		vertices = new Vertex[nVertices];
+		colors = new VColor[nVertices];
+		for(int i=0;i<nVertices;i++){
 			vertices[i] = new Vertex();
 			colors[i] = new VColor();
 		}

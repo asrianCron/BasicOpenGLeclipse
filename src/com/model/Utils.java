@@ -53,12 +53,16 @@ public class Utils {
     	return (int) (pos * halfCoord + halfCoord);
     }
     
-    public static float[] getMultipleVectors3(Polygon[] polys) {
+    public static float[] getMultiplePolygons(Polygon[] polys) {
     	if(polys != null){
-            float[] output = new float[6 * polys.length];     
+    		int totalPoints = 0;
+    		for(int i=0;i<polys.length;i++){
+    			totalPoints += polys[i].getNVertices();
+    		}
+            float[] output = new float[2 * totalPoints];     
         	
         	for(int i=0;i<polys.length;i++){
-        		System.arraycopy(polys[i].getVerticesArray(), 0, output, i * 6, 6);
+        		System.arraycopy(polys[i].getVerticesArray(), 0, output, i * 2 * polys[i].getNVertices(), 2 * polys[i].getNVertices());
         	}
         	return output;
     	}

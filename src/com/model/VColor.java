@@ -42,5 +42,9 @@ public class VColor {
 		}
 		return true;
 	}
+	@Override
+	public String toString(){
+		return "VColor{" +  color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3] + "}";
+	}
 
 }
