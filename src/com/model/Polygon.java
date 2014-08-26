@@ -2,8 +2,8 @@ package com.model;
 
 public class Polygon {
 	
-	private Vertex[] vertices;
-	private VColor[] colors;
+	protected Vertex[] vertices;
+	protected VColor[] colors;
 	
 	public Polygon(){
 		vertices = new Vertex[3];
@@ -28,6 +28,18 @@ public class Polygon {
         vertices[2] = new Vertex(CX, CY);
     }
 	
+    public void addXOffset(float offset) {
+    	for(int i=0;i<vertices.length;i++){
+    		getVertex(i).setX(getVertex(i).getX() + offset);
+    	}
+    }
+
+    public void addYOffset(float offset) {
+    	for(int i=0;i<vertices.length;i++){
+    		getVertex(i).setY(getVertex(i).getY() + offset);
+    	}
+    }
+    
 	public Vertex getVertex(int index){
 		if(index > vertices.length){
 			throw new IndexOutOfBoundsException();
@@ -96,11 +108,7 @@ public class Polygon {
 	}
 	@Override
 	public String toString(){
-		String result;
-		
-		result = "Polygon: {\n" + getVertex(0).toString() + "\n" + getVertex(1).toString() + "\n" + getVertex(2).toString() + "\n}"; 
-		
-		return result;
+		return "Polygon: {\n" + getVertex(0).toString() + "\n" + getVertex(1).toString() + "\n" + getVertex(2).toString() + "\n}"; 
 	}
 	
 }

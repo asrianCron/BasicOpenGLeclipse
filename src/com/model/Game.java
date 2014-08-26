@@ -20,7 +20,6 @@ public class Game {
 
 	static int width = 800;
 	static int height = 600;
-	static float mouseX, mouseY;
 	static boolean running = false;
 	static PixelFormat pFormat;
 	static ContextAttribs cAttrib;
@@ -41,7 +40,9 @@ public class Game {
 		float minSize = 0.02f;
 		float maxSize = 0.06f;
 //		ObjectTools.createRandomPolygon3(numbers, minSize, maxSize);
-		ObjectTools.createPolygon3(1, 0.2f, 0.2f);
+//		ObjectTools.createPolygon3(0, 0.2f, 0.2f);
+		ObjectTools.addQuad(0.2f, 0.2f);
+		ObjectTools.addNewVect3(0.2f, 0.2f);
 		lastFrame = System.currentTimeMillis();
 		gameLoop();
 	}
@@ -51,16 +52,16 @@ public class Game {
 		while (running) {
 			mousePos = getMousePos();
 			Input.update();
-			currentFrame = System.currentTimeMillis();
+			currentFrame = getTime();
 			if (checkFrame(interval)) {
-				lastFrame = System.currentTimeMillis();
-				ObjectTools.moveTo(congregationPoint);
-				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
+				lastFrame = getTime();
+//				ObjectTools.moveTo(congregationPoint);
+//				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
 			}
 
 			checkInput();
-			ObjectTools.updatePolygon3(Utils.getMultipleVectors3(ObjectTools.poly3Storage));
-			ObjectTools.updateColor(Utils.getMultipleColors(ObjectTools.colStorage));
+			ObjectTools.updatePolygons(Utils.getMultipleVectors3(ObjectTools.polyStorage));
+			ObjectTools.updateColors(Utils.getMultipleColors(ObjectTools.colStorage));
 //			System.out.println("@OBJECTS:" + ObjectTools.vec3Storage.length);
 //			 System.out.println(mousePos[0] + " " + mousePos[1]);
 
@@ -101,10 +102,12 @@ public class Game {
 //		}
 		
 		if(Input.isMouseDown(0)){
+//			ObjectTools.addNewVect3(0.02f, 0.01f);
+			
 			Object[] arg = ObjectTools.getClickedPoly(mousePos,0.2f);
 			if(arg != null){
 				if((float)arg[1] > 0.8f){
-					((Polygon3)arg[0]).setVertice(0, mousePos);
+					((Polygon)arg[0]).setVertice(0, mousePos);
 				}
 			}
 		}
@@ -121,10 +124,7 @@ public class Game {
 
 	private static float[] getMousePos() { // [0] = mouse.GetX(), [1] =
 											// mouse.GetY()
-		float[] result = new float[2];
-		result[0] = Utils.convertNeutre(Mouse.getX(), width);
-		result[1] = Utils.convertNeutre(Mouse.getY(), height);
-		return result;
+		return new float[]{Utils.convertNeutre(Mouse.getX(), width),Utils.convertNeutre(Mouse.getY(), height)};
 	}
 
 	public static void snapShot(ByteBuffer buff) {
@@ -173,8 +173,8 @@ public class Game {
 //		glEnable(GL_POINT_SPRITE);
 //		glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CW);
+		glCullFace(GL_BACK); // defines which face (front, back, both) get culled (doesn't get rendered)
+		glFrontFace(GL_CW); // defines the clockwise winding order as being the front of the triangle
 
 	}
 
@@ -185,7 +185,7 @@ public class Game {
 //		glUniform2f(shProg.uniformOffsetLocation, -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[0], -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[1]);
 		
 		// glDrawArrays(int mode, int first, int count)
-		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.poly3Storage.length * 3);
+		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.polyStorage.length * 3);
 //		glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); // drawing
 																		// point
 		cleanupRender();

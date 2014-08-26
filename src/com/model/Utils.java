@@ -53,38 +53,20 @@ public class Utils {
     	return (int) (pos * halfCoord + halfCoord);
     }
     
-    public static float[] getMultipleVectors3(Polygon3[] polys) {
-        float[] output = new float[6 * polys.length];
-//        
-//        int index = 0;
-//        for (int i = 0; i < vects.length; i++) {
-//            float[] temp = vects[i].getArray();
-//            for (int j = 0; j < temp.length; j++) {
-//                output[index] = temp[j];
-//                index++;
-//            }
-//        }
-        
-    	
-    	for(int i=0;i<polys.length;i++){
-    		System.arraycopy(polys[i].getVerticesArray(), 0, output, i * 6, 6);
+    public static float[] getMultipleVectors3(Polygon[] polys) {
+    	if(polys != null){
+            float[] output = new float[6 * polys.length];     
+        	
+        	for(int i=0;i<polys.length;i++){
+        		System.arraycopy(polys[i].getVerticesArray(), 0, output, i * 6, 6);
+        	}
+        	return output;
     	}
-        return output;
-
+        return null;
     }
 
     public static float[] getMultipleColors(VColor[] colors) {
-        float[] output = new float[4 * colors.length];
-        
-//        int index = 0;
-//        for (int i = 0; i < colors.length; i++) {
-//            float[] temp = colors[i].getArray();
-//            for (int j = 0; j < temp.length; j++) {
-//                output[index] = temp[j];
-//                index++;
-//            }
-//        }
-        
+        float[] output = new float[4 * colors.length];        
     	for(int i=0;i<colors.length;i++){
     		System.arraycopy(colors[i].getColor(), 0, output, i * 4, 4);
     	}

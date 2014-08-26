@@ -27,25 +27,27 @@ public class ObjectTools {
 	static int vertexArrayObjId;
 	static int vertexBufferObjId;
 	static int colorBufferObjId;
-	static FloatBuffer vertexBuffer, colorBuffer;
+	static FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(0);
+	static FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(0);
 
-	static Polygon3[] poly3Storage;
-	static VColor[] colStorage;
+	static Polygon[] polyStorage = new Polygon[0];
+	static VColor[] colStorage = new VColor[0];
 	
-	static void addVect3(float minSize, float maxSize) {
+	static void addNewVect3(float minSize, float maxSize) {
+
 		float size = randFloat(minSize, maxSize);
-		Polygon3 input = new Polygon3(0.0f, size, size, -size, -size, -size);
+		Polygon input = new Polygon(0.0f, size, size, -size, -size, -size);
 
 		input.addXOffset(randFloat(-1f, 1f));
 		input.addYOffset(randFloat(-1f, 1f));
 
-		Polygon3[] poly3TempStorage = new Polygon3[poly3Storage.length + 1];
+		Polygon[] polyTempStorage = new Polygon[polyStorage.length + 1];
 		VColor[] colorTempStorage = new VColor[colStorage.length + 3];
 
-		System.arraycopy(poly3Storage, 0, poly3TempStorage, 0,
-				poly3Storage.length);
-		poly3TempStorage[poly3TempStorage.length - 1] = input;
-		poly3Storage = poly3TempStorage;
+		System.arraycopy(polyStorage, 0, polyTempStorage, 0,
+				polyStorage.length);
+		polyTempStorage[polyTempStorage.length - 1] = input;
+		polyStorage = polyTempStorage;
 
 		System.arraycopy(colStorage, 0, colorTempStorage, 0,
 				colStorage.length);
@@ -54,30 +56,37 @@ public class ObjectTools {
 		colorTempStorage[colorTempStorage.length - 1] = input.getColor(2);
 		colStorage = colorTempStorage;
 
-		vertexBuffer = BufferUtils.createFloatBuffer(poly3Storage.length * 6);
-		colorBuffer = BufferUtils.createFloatBuffer(colStorage.length * 4);
-		vertexBuffer.put(Utils.getMultipleVectors3(poly3Storage)); 
-		vertexBuffer.rewind(); // rewinded the buffer for reading; position = 0
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjId);
-
-		glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_DYNAMIC_DRAW);
-
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0); // setting pointers
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		colorBuffer.put(Utils.getMultipleColors(colStorage));
-		colorBuffer.rewind(); // rewinded the buffer for reading; position = 0
-
-		glBindVertexArray(vertexArrayObjId); // binding the vao; we can't send
-
-		glBindBuffer(GL_ARRAY_BUFFER, colorBufferObjId); // binds buffer object
-
-		glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0);
-		glBindVertexArray(0); // unbinding vao
+		sendPolygons(Utils.getMultipleVectors3(polyStorage));
+		sendColors(Utils.getMultipleColors(colStorage));
 	}
+
+	static void addQuad(float minSize, float maxSize) {
+
+		float size = randFloat(minSize, maxSize);
+		Polygon input = new Quad(-size/2,size/2,size/2,size/2,size/2,-size/2,-size/2,-size/2);
+
+		input.addXOffset(randFloat(-1f, 1f));
+		input.addYOffset(randFloat(-1f, 1f));
+
+		Polygon[] polyTempStorage = new Polygon[polyStorage.length + 1];
+		VColor[] colorTempStorage = new VColor[colStorage.length + 4];
+
+		System.arraycopy(polyStorage, 0, polyTempStorage, 0,
+				polyStorage.length);
+		polyTempStorage[polyTempStorage.length - 1] = input;
+		polyStorage = polyTempStorage;
+
+		System.arraycopy(colStorage, 0, colorTempStorage, 0,
+				colStorage.length);
+		colorTempStorage[colorTempStorage.length - 4] = input.getColor(0);
+		colorTempStorage[colorTempStorage.length - 3] = input.getColor(1);
+		colorTempStorage[colorTempStorage.length - 2] = input.getColor(2);
+		colorTempStorage[colorTempStorage.length - 1] = input.getColor(3);
+		colStorage = colorTempStorage;
+
+		sendPolygons(Utils.getMultipleVectors3(polyStorage));
+		sendColors(Utils.getMultipleColors(colStorage));
+	}	
 	
 	static Object[] getClickedPoly(float[] mousePos, float range){
 		// to check if a point is inside the triangle, we need to calculate the click's barycentric coordinates
@@ -86,9 +95,9 @@ public class ObjectTools {
 		float alpha; // how close mousePos is to poly.A
 		float beta;  // how close mousePos is to poly.B
 		float gamma; // how close mousePos is to poly.C
-		Polygon3 poly;
-		for(int i=0;i<poly3Storage.length;i++){
-			poly = poly3Storage[i];
+		Polygon poly;
+		for(int i=0;i<polyStorage.length;i++){
+			poly = polyStorage[i];
 			alpha = ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (mousePos[0] - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (mousePos[1] - poly.getVertex(2).getY())) 
 					/ ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (poly.getVertex(0).getX() - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (poly.getVertex(0).getY() - poly.getVertex(2).getY()));
 			
@@ -109,94 +118,103 @@ public class ObjectTools {
 		return null;
 	}
 	
-
-	static void moveTo(Polygon3 vert, float[] destination) {
+	static void checkStorage(){
+		if(polyStorage == null){
+			polyStorage = new Polygon[0];
+		}
+		if(colStorage == null){
+			colStorage = new VColor[0];
+		}
+	}
+	
+	
+	
+	static void moveTo(Polygon vert, float[] destination) {
 
 		vert.addXOffset(-GameMath.calculateOffset(destination[0],
 				destination[1], vert.getVertex(0).getX(), vert.getVertex(0).getY(), 100)[0]);
 		vert.addYOffset(-GameMath.calculateOffset(destination[0],
 				destination[1], vert.getVertex(0).getX(), vert.getVertex(0).getY(), 100)[1]);
-		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
-		updateColor(Utils.getMultipleColors(colStorage));
+		updatePolygons(Utils.getMultipleVectors3(polyStorage));
+		updateColors(Utils.getMultipleColors(colStorage));
 	}
 
 	static void moveTo(float[] destination) {
 
-		for (int i = 0; i < poly3Storage.length; i++) {
-			poly3Storage[i].addXOffset(-GameMath
+		for (int i = 0; i < polyStorage.length; i++) {
+			polyStorage[i].addXOffset(-GameMath
 					.calculateOffset(destination[0], destination[1],
-							poly3Storage[i].getVertex(0).getX(), poly3Storage[i].getVertex(0).getY(), 50f)[0]);
-			poly3Storage[i].addYOffset(-GameMath
+							polyStorage[i].getVertex(0).getX(), polyStorage[i].getVertex(0).getY(), 50f)[0]);
+			polyStorage[i].addYOffset(-GameMath
 					.calculateOffset(destination[0], destination[1],
-							poly3Storage[i].getVertex(0).getX(), poly3Storage[i].getVertex(0).getY(), 50f)[1]);
+							polyStorage[i].getVertex(0).getX(), polyStorage[i].getVertex(0).getY(), 50f)[1]);
 		}
-		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
-		updateColor(Utils.getMultipleColors(colStorage));
+		updatePolygons(Utils.getMultipleVectors3(polyStorage));
+		updateColors(Utils.getMultipleColors(colStorage));
 	}
-	
 
 	static void createRandomPolygon3(int numbers, float minSize, float maxSize) {
 
-		poly3Storage = new Polygon3[numbers];
+		polyStorage = new Polygon[numbers];
 		colStorage = new VColor[numbers * 3];
 		float size;
 		for (int i = 0; i < numbers; i++) {
 			size = ObjectTools.randFloat(minSize, maxSize);
-			poly3Storage[i] = new Polygon3(0.0f, size, size, -size, -size, -size);
-			poly3Storage[i].addXOffset(ObjectTools.randFloat(-1f, 1f));
-			poly3Storage[i].addYOffset(ObjectTools.randFloat(-1f, 1f));
+			polyStorage[i] = new Polygon(0.0f, size, size, -size, -size, -size);
+			polyStorage[i].addXOffset(ObjectTools.randFloat(-1f, 1f));
+			polyStorage[i].addYOffset(ObjectTools.randFloat(-1f, 1f));
 		}
 		
 		int polyIndex = 0;
 		
 		for(int i=0;i < colStorage.length;i+=3){
-			colStorage[i] = poly3Storage[polyIndex].getColor(0);
-			colStorage[i+1] = poly3Storage[polyIndex].getColor(1);
-			colStorage[i+2] = poly3Storage[polyIndex].getColor(2);
+			colStorage[i] = polyStorage[polyIndex].getColor(0);
+			colStorage[i+1] = polyStorage[polyIndex].getColor(1);
+			colStorage[i+2] = polyStorage[polyIndex].getColor(2);
 			polyIndex++;
 		}
 		
 		Game.numbers = numbers;
-		sendPolygon3(Utils.getMultipleVectors3(poly3Storage));
-		sendColor(Utils.getMultipleColors(colStorage));
+		sendPolygons(Utils.getMultipleVectors3(polyStorage));
+		sendColors(Utils.getMultipleColors(colStorage));
 	}
 
 	static void createPolygon3(int numbers, float minSize, float maxSize) {
 
-		poly3Storage = new Polygon3[numbers];
+		polyStorage = new Polygon[numbers];
 		colStorage = new VColor[numbers * 3];
 		float size;
 		for (int i = 0; i < numbers; i++) {
 			size = ObjectTools.randFloat(minSize, maxSize);
-			poly3Storage[i] = new Polygon3(0.0f, size, size, -size, -size, -size);
+			polyStorage[i] = new Polygon(0.0f, size, size, -size, -size, -size);
 		}
 		
 		int polyIndex = 0;
 		
 		for(int i=0;i < colStorage.length;i+=3){
-			colStorage[i] = poly3Storage[polyIndex].getColor(0);
-			colStorage[i+1] = poly3Storage[polyIndex].getColor(1);
-			colStorage[i+2] = poly3Storage[polyIndex].getColor(2);
+			colStorage[i] = polyStorage[polyIndex].getColor(0);
+			colStorage[i+1] = polyStorage[polyIndex].getColor(1);
+			colStorage[i+2] = polyStorage[polyIndex].getColor(2);
 			polyIndex++;
 		}
 		
 		Game.numbers = numbers;
-		sendPolygon3(Utils.getMultipleVectors3(poly3Storage));
-		sendColor(Utils.getMultipleColors(colStorage));
+		sendPolygons(Utils.getMultipleVectors3(polyStorage));
+		sendColors(Utils.getMultipleColors(colStorage));
 	}
 	
 	public static void updateRandomPolygon3(float bot, float top) {
 
-		for (int i = 0; i < poly3Storage.length; i++) {
-			poly3Storage[i].addXOffset(ObjectTools.randFloat(bot, top));
-			poly3Storage[i].addYOffset(ObjectTools.randFloat(bot, top));
+		for (int i = 0; i < polyStorage.length; i++) {
+			polyStorage[i].addXOffset(ObjectTools.randFloat(bot, top));
+			polyStorage[i].addYOffset(ObjectTools.randFloat(bot, top));
 		}
 
-		updatePolygon3(Utils.getMultipleVectors3(poly3Storage));
-		updateColor(Utils.getMultipleColors(colStorage));
+		updatePolygons(Utils.getMultipleVectors3(polyStorage));
+		updateColors(Utils.getMultipleColors(colStorage));
 	}
 
-	public static void sendPolygon3(float[] array) { // location 0
+	public static void sendPolygons(float[] array) { // location 0
 		vertexBuffer = BufferUtils.createFloatBuffer(array.length);
 
 		vertexBuffer.put(array); // created a vertex
@@ -249,7 +267,8 @@ public class ObjectTools {
 		glBindVertexArray(0); // unbinding vao
 	}
 
-	public static void updatePolygon3(float[] array) {
+	public static void updatePolygons(float[] array) {
+
 		vertexBuffer.clear();
 		vertexBuffer.put(array);
 		vertexBuffer.rewind();
@@ -262,7 +281,8 @@ public class ObjectTools {
 		// glBindVertexArray(0);
 	}
 
-	public static void updateColor(float[] array) {
+	public static void updateColors(float[] array) {
+
 		colorBuffer.clear();
 		colorBuffer.put(array);
 		colorBuffer.rewind();
@@ -270,7 +290,8 @@ public class ObjectTools {
 		glBufferSubData(GL_ARRAY_BUFFER, 0, colorBuffer);
 	}
 
-	public static void sendColor(float[] array) { // location 1
+	public static void sendColors(float[] array) { // location 1
+
 		colorBuffer = BufferUtils.createFloatBuffer(array.length);
 		colorBuffer.put(array); // uploading color x times in the buffer
 
@@ -297,7 +318,7 @@ public class ObjectTools {
 															// in the VAO
 		glBindVertexArray(0); // unbinding vao
 	}
-
+	
 	public static float randFloat(float bot, float top) {
 		int iBot = (int) (bot * 10000);
 		int iTop = (int) (top * 10000);
