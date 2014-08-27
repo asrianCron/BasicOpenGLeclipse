@@ -59,9 +59,8 @@ public class Game {
 				lastFrame = getTime();
 				// ObjectTools.storage.addShape(new Triangle(new Vertex(0.0f,
 				// size), new Vertex(size, -size),new Vertex( -size, -size)));
-				// ObjectTools.moveShapesTo(congregationPoint);
-				// ObjectTools.randomlyMoveAllShapes(randomArea[0],
-				// randomArea[1]);
+				 ObjectTools.moveShapesTo(congregationPoint);
+//				 ObjectTools.randomlyMoveAllShapes(randomArea[0],randomArea[1]);
 			}
 
 			checkInput();

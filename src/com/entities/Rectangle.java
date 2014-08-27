@@ -8,13 +8,15 @@ public class Rectangle implements Shape{
 	protected Polygon[] polygons;
 	
 	public Rectangle(){
-		polygons = new Polygon[0];
+		polygons = new Polygon[2];
+		polygons[0] = new Polygon();
+		polygons[1] = new Polygon();
 	}
 	
 	public Rectangle(Vertex A, Vertex B, Vertex C, Vertex D){
 		polygons = new Polygon[2];
-		polygons[0] = new Polygon(A, B, C);
-		polygons[1] = new Polygon(C, D, A);
+		polygons[0] = new Polygon(new Vertex(A), new Vertex(B), new Vertex(C));
+		polygons[1] = new Polygon(new Vertex(C), new Vertex(D), new Vertex(A));
 	}
 	
 	public Rectangle(float width, float height){
@@ -31,16 +33,27 @@ public class Rectangle implements Shape{
 
 	@Override
 	public void addXOffset(float value) {
-		for(int i=0;i<polygons.length;i++){
-			polygons[i].addXOffset(value);
-		}
+		
+		polygons[0].addVerticeXOffset(0, value);
+		polygons[0].addVerticeXOffset(1, value);
+		polygons[0].addVerticeXOffset(2, value);
+		polygons[1].addVerticeXOffset(0, value);
+		polygons[1].addVerticeXOffset(1, value);
+		polygons[1].addVerticeXOffset(2, value);
 	}
 
 	@Override
 	public void addYOffset(float value) {
-		for(int i=0;i<polygons.length;i++){
-			polygons[i].addYOffset(value);
-		}
+//		for(int i=0;i<polygons.length;i++){
+//			polygons[i].addYOffset(value);
+//		}
+		
+		polygons[0].addVerticeYOffset(0, value);
+		polygons[0].addVerticeYOffset(1, value);
+		polygons[0].addVerticeYOffset(2, value);
+		polygons[1].addVerticeYOffset(0, value);
+		polygons[1].addVerticeYOffset(1, value);
+		polygons[1].addVerticeYOffset(2, value);
 	}
 
 	@Override

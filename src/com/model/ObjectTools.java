@@ -83,7 +83,7 @@ public class ObjectTools {
 //		storage.addPolygon(input);
 		
 		storage.addShape(input);
-		
+
 		sendPolygons(storage.getStorage().getStoredPolyArray());
 		sendColors(storage.getStorage().getStoredVColorArray());
 	}	
@@ -127,10 +127,15 @@ public class ObjectTools {
 
 
 		for(int i=0; i < storage.size();i++){
-			for(int j=0;j<storage.getShape(i).getPolys().length;j++){
-				storage.getShape(i).getPolys()[j].addXOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getX(), storage.getShape(i).getCentroid().getX(),50f)[0]);
-				storage.getShape(i).getPolys()[j].addYOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getY(), storage.getShape(i).getCentroid().getY(),50f)[1]);
-			}
+//			for(int j=0;j<storage.getShape(i).getPolys().length;j++){
+//				storage.getShape(i).getPolys()[j].addXOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getX(), storage.getShape(i).getCentroid().getX(),50f)[0]);
+//				storage.getShape(i).getPolys()[j].addYOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getY(), storage.getShape(i).getCentroid().getY(),50f)[1]);
+//			}
+			
+			storage.getShape(i).addXOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getX(), storage.getShape(i).getCentroid().getX(),50f)[0]);
+			storage.getShape(i).addYOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getY(), storage.getShape(i).getCentroid().getY(),50f)[1]);
+			
+			
 		}
 		storage.updateStorage();
 		updatePolygons(storage.getStorage().getStoredPolyArray());
@@ -168,12 +173,15 @@ public class ObjectTools {
 	public static void randomlyMoveAllShapes(float bot, float top) {
 
 		for (int i = 0; i < storage.size(); i++) {
-			for(int j=0;j<storage.getShape(i).getPolys().length;j++){
-				
-				storage.getShape(i).getPolys()[j].addXOffset(ObjectTools.randFloat(bot, top));
-				storage.getShape(i).getPolys()[j].addYOffset(ObjectTools.randFloat(bot, top));
-
-			}
+//			for(int j=0;j<storage.getShape(i).getPolys().length;j++){
+//				
+//				storage.getShape(i).getPolys()[j].addXOffset(ObjectTools.randFloat(bot, top));
+//				storage.getShape(i).getPolys()[j].addYOffset(ObjectTools.randFloat(bot, top));
+//
+//			}
+			
+			storage.getShape(i).addXOffset(ObjectTools.randFloat(bot, top));
+			storage.getShape(i).addYOffset(ObjectTools.randFloat(bot, top));
 		}
 		storage.updateStorage();
 		updatePolygons(storage.getStorage().getStoredPolyArray());

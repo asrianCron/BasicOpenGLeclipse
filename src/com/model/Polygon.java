@@ -29,6 +29,20 @@ public class Polygon {
         vertices[2] = new Vertex(CX, CY);
     }
 	
+    public void addVerticeXOffset(int index, float offset){
+		if(index > vertices.length){
+			throw new IndexOutOfBoundsException();
+		}
+    	vertices[index].setX(vertices[index].getX() + offset);
+    }
+    
+    public void addVerticeYOffset(int index, float offset){
+ 		if(index > vertices.length){
+ 			throw new IndexOutOfBoundsException();
+ 		}
+     	vertices[index].setY(vertices[index].getY() + offset);
+     }
+    
     public void addXOffset(float offset) {
     	for(int i=0;i<vertices.length;i++){
     		getVertex(i).setX(getVertex(i).getX() + offset);
