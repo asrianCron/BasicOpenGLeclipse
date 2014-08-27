@@ -13,11 +13,18 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 
+
+
+
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.BufferUtils;
+
+import com.entities.Rectangle;
+import com.entities.Shape;
+import com.entities.Triangle;
 
 
 public class ObjectTools {
@@ -33,132 +40,144 @@ public class ObjectTools {
 //	static Polygon[] polyStorage = new Polygon[0];
 //	static VColor[] colStorage = new VColor[0];
 	
-	static PolyStorage storage = new PolyStorage();
+//	static PolyStorage storage = new PolyStorage();
+	static ShapeStorage storage = new ShapeStorage();
 	
-	
-	static void addNewVect3(float minSize, float maxSize) {
+	static void addTriangle(float minSize, float maxSize) {
 
 		float size = randFloat(minSize, maxSize);
-		Polygon input = new Polygon(0.0f, size, size, -size, -size, -size);
+		Shape input = new Triangle(new Vertex(0.0f, size), new Vertex(size, -size),new Vertex( -size, -size));
 
 		input.addXOffset(randFloat(-1f, 1f));
 		input.addYOffset(randFloat(-1f, 1f));
 		
-		storage.addPolygon(input);
-
-		sendPolygons(storage.getStoredPolyArray());
-		sendColors(storage.getStoredVColorArray());
+//		storage.addPolygon(input);
+		storage.addShape(input);
+		
+		sendPolygons(storage.getStorage().getStoredPolyArray());
+		sendColors(storage.getStorage().getStoredVColorArray());
 	}
 
+//	static void addQuad(float minSize, float maxSize) {
+//
+//		float size = randFloat(minSize, maxSize);
+//		Polygon input = new Quad(-size/2,size/2,size/2,size/2,size/2,-size/2,-size/2,-size/2);
+//
+////		input.addXOffset(randFloat(-1f, 1f));
+////		input.addYOffset(randFloat(-1f, 1f));
+//		
+//		storage.addPolygon(input);
+//
+//		sendPolygons(storage.getStoredPolyArray());
+//		sendColors(storage.getStoredVColorArray());
+//	}	
+	
 	static void addQuad(float minSize, float maxSize) {
 
 		float size = randFloat(minSize, maxSize);
-		Polygon input = new Quad(-size/2,size/2,size/2,size/2,size/2,-size/2,-size/2,-size/2);
+		Shape input = new Rectangle(new Vertex(-size/2,size/2),new Vertex(size/2,size/2),new Vertex(size/2,-size/2),new Vertex(-size/2,-size/2));
 
 //		input.addXOffset(randFloat(-1f, 1f));
 //		input.addYOffset(randFloat(-1f, 1f));
 		
-		storage.addPolygon(input);
-
-		sendPolygons(storage.getStoredPolyArray());
-		sendColors(storage.getStoredVColorArray());
+//		storage.addPolygon(input);
+		
+		storage.addShape(input);
+		
+		sendPolygons(storage.getStorage().getStoredPolyArray());
+		sendColors(storage.getStorage().getStoredVColorArray());
 	}	
 	
-	static Object[] getClickedPoly(float[] mousePos, float range){
+	static Object[] getClickedShape(float[] mousePos, float range){
 		// to check if a point is inside the triangle, we need to calculate the click's barycentric coordinates
 		//alpha, beta, gamma
 		
 		float alpha; // how close mousePos is to poly.A
 		float beta;  // how close mousePos is to poly.B
 		float gamma; // how close mousePos is to poly.C
-		Polygon poly;
-		for(int i=0;i<storage.getPolyCount();i++){ // problem here
-			poly = storage.getPolygon(i);
-			alpha = ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (mousePos[0] - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (mousePos[1] - poly.getVertex(2).getY())) 
-					/ ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (poly.getVertex(0).getX() - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (poly.getVertex(0).getY() - poly.getVertex(2).getY()));
-			
-			beta = ((poly.getVertex(2).getY() - poly.getVertex(0).getY()) * (mousePos[0] - poly.getVertex(2).getX()) + (poly.getVertex(0).getX() - poly.getVertex(2).getX()) * (mousePos[1] - poly.getVertex(2).getY())) 
-					/ ((poly.getVertex(1).getY() - poly.getVertex(2).getY()) * (poly.getVertex(0).getX() - poly.getVertex(2).getX()) + (poly.getVertex(2).getX() - poly.getVertex(1).getX()) * (poly.getVertex(0).getY() - poly.getVertex(2).getY()));
-			gamma = 1.0f - alpha - beta;
-			if(alpha > 0-range && beta > 0-range && gamma > 0-range && alpha < 1+range && beta < 1+range && gamma < 1+range){
-				System.out.println(alpha + " " + beta + " " + gamma);
-				Object[] result = new Object[4];
-				result[0] = poly;
-				result[1] = alpha;
-				result[2] = gamma;
-				return result;
+		Shape poly;
+		for(int i=0;i<storage.size();i++){ // problem here
+			poly = storage.getShape(i);
+			for(int j=0;j<poly.getPolys().length;j++){
+				alpha = ((poly.getPolys()[j].getVertex(1).getY() - poly.getPolys()[j].getVertex(2).getY()) * (mousePos[0] - poly.getPolys()[j].getVertex(2).getX()) + (poly.getPolys()[j].getVertex(2).getX() - poly.getPolys()[j].getVertex(1).getX()) * (mousePos[1] - poly.getPolys()[j].getVertex(2).getY())) 
+						/ ((poly.getPolys()[j].getVertex(1).getY() - poly.getPolys()[j].getVertex(2).getY()) * (poly.getPolys()[j].getVertex(0).getX() - poly.getPolys()[j].getVertex(2).getX()) + (poly.getPolys()[j].getVertex(2).getX() - poly.getPolys()[j].getVertex(1).getX()) * (poly.getPolys()[j].getVertex(0).getY() - poly.getPolys()[j].getVertex(2).getY()));
+				
+				beta = ((poly.getPolys()[j].getVertex(2).getY() - poly.getPolys()[j].getVertex(0).getY()) * (mousePos[0] - poly.getPolys()[j].getVertex(2).getX()) + (poly.getPolys()[j].getVertex(0).getX() - poly.getPolys()[j].getVertex(2).getX()) * (mousePos[1] - poly.getPolys()[j].getVertex(2).getY())) 
+						/ ((poly.getPolys()[j].getVertex(1).getY() - poly.getPolys()[j].getVertex(2).getY()) * (poly.getPolys()[j].getVertex(0).getX() - poly.getPolys()[j].getVertex(2).getX()) + (poly.getPolys()[j].getVertex(2).getX() - poly.getPolys()[j].getVertex(1).getX()) * (poly.getPolys()[j].getVertex(0).getY() - poly.getPolys()[j].getVertex(2).getY()));
+				gamma = 1.0f - alpha - beta;
+				
+				if(alpha > 0-range && beta > 0-range && gamma > 0-range && alpha < 1+range && beta < 1+range && gamma < 1+range){
+//					System.out.println(alpha + " " + beta + " " + gamma);
+					Object[] result = new Object[4];
+					result[0] = poly;
+					result[1] = alpha;
+					result[2] = gamma;
+					return result;
+				}
+				
 			}
+
 //			System.out.println(alpha + " " + beta + " " + gamma);
-			poly = null;
 		}
 		return null;
 	}
 		
 	
-	static void moveTo(Polygon vert, float[] destination) {
+	static void moveShapesTo(float[] destination) {
 
-		vert.addXOffset(-GameMath.calculateOffset(destination[0],
-				destination[1], vert.getVertex(0).getX(), vert.getVertex(0).getY(), 100)[0]);
-		vert.addYOffset(-GameMath.calculateOffset(destination[0],
-				destination[1], vert.getVertex(0).getX(), vert.getVertex(0).getY(), 100)[1]);
-		storage.updateStorage();
-		updatePolygons(storage.getStoredPolyArray());
-		updateColors(storage.getStoredVColorArray());
-	}
 
-	static void moveTo(float[] destination) {
-
-		for (int i = 0; i < storage.getShapeCount(); i++) {
-			storage.getPolygon(i).addXOffset(-GameMath
-					.calculateOffset(destination[0], destination[1],
-							storage.getPolygon(i).getVertex(0).getX(), storage.getPolygon(i).getVertex(0).getY(), 50f)[0]);
-			storage.getPolygon(i).addYOffset(-GameMath
-					.calculateOffset(destination[0], destination[1],
-							storage.getPolygon(i).getVertex(0).getX(), storage.getPolygon(i).getVertex(0).getY(), 50f)[1]);
+		for(int i=0; i < storage.size();i++){
+			for(int j=0;j<storage.getShape(i).getPolys().length;j++){
+				storage.getShape(i).getPolys()[j].addXOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getX(), storage.getShape(i).getCentroid().getX(),50f)[0]);
+				storage.getShape(i).getPolys()[j].addYOffset(-GameMath.calculateOffset(destination[0], destination[1], storage.getShape(i).getCentroid().getY(), storage.getShape(i).getCentroid().getY(),50f)[1]);
+			}
 		}
 		storage.updateStorage();
-		updatePolygons(storage.getStoredPolyArray());
-		updateColors(storage.getStoredPolyArray());
+		updatePolygons(storage.getStorage().getStoredPolyArray());
+		updateColors(storage.getStorage().getStoredVColorArray());
+		
 	}
 
-	static void createRandomPolygon3(int numbers, float minSize, float maxSize) {
+	static void createRandomlyPlacedTriangles(int numbers, float minSize, float maxSize) {
+		float size;
+		for (int i = 0; i < numbers; i++) {
+			size = ObjectTools.randFloat(minSize, maxSize);
+			storage.addShape(new Triangle(new Vertex(0.0f, size), new Vertex(size, -size),new Vertex( -size, -size)));
+			storage.getShape(i).addXOffset(ObjectTools.randFloat(-1f, 1f));
+			storage.getShape(i).addYOffset(ObjectTools.randFloat(-1f, 1f));
+		}
+		ObjectTools.storage.updateStorage();
+		Game.numbers = numbers;
+		sendPolygons(storage.getStorage().getStoredPolyArray());
+		sendColors(storage.getStorage().getStoredVColorArray());
+	}
+
+	static void createTriangles(int numbers, float minSize, float maxSize) {
 
 		float size;
 		for (int i = 0; i < numbers; i++) {
 			size = ObjectTools.randFloat(minSize, maxSize);
-			storage.addPolygon(new Polygon(0.0f, size, size, -size, -size, -size));
-			storage.getPolygon(i).addXOffset(ObjectTools.randFloat(-1f, 1f));
-			storage.getPolygon(i).addYOffset(ObjectTools.randFloat(-1f, 1f));
-		}
-		
-		int polyIndex = 0;
-		Game.numbers = numbers;
-		sendPolygons(storage.getStoredPolyArray());
-		sendColors(storage.getStoredVColorArray());
-	}
-
-	static void createPolygon3(int numbers, float minSize, float maxSize) {
-
-		float size;
-		for (int i = 0; i < numbers; i++) {
-			size = ObjectTools.randFloat(minSize, maxSize);
-			storage.addPolygon(new Polygon(0.0f, size, size, -size, -size, -size));
+			storage.addShape(new Triangle(new Vertex(0.0f, size), new Vertex(size, -size),new Vertex( -size, -size)));
 		}
 		
 		Game.numbers = numbers;
-		sendPolygons(storage.getStoredPolyArray());
-		sendColors(storage.getStoredVColorArray());
+		sendPolygons(storage.getStorage().getStoredPolyArray());
+		sendColors(storage.getStorage().getStoredVColorArray());
 	}
 	
-	public static void updateRandomPolygon3(float bot, float top) {
+	public static void randomlyMoveAllShapes(float bot, float top) {
 
-		for (int i = 0; i < storage.getShapeCount(); i++) {
-			storage.getPolygon(i).addXOffset(ObjectTools.randFloat(bot, top));
-			storage.getPolygon(i).addYOffset(ObjectTools.randFloat(bot, top));
+		for (int i = 0; i < storage.size(); i++) {
+			for(int j=0;j<storage.getShape(i).getPolys().length;j++){
+				
+				storage.getShape(i).getPolys()[j].addXOffset(ObjectTools.randFloat(bot, top));
+				storage.getShape(i).getPolys()[j].addYOffset(ObjectTools.randFloat(bot, top));
+
+			}
 		}
 		storage.updateStorage();
-		updatePolygons(storage.getStoredPolyArray());
-		updateColors(storage.getStoredVColorArray());
+		updatePolygons(storage.getStorage().getStoredPolyArray());
+		updateColors(storage.getStorage().getStoredVColorArray());
 	}
 
 	public static void sendPolygons(float[] array) { // location 0
@@ -187,27 +206,6 @@ public class ObjectTools {
 		// WHERE, WHAT, WHAT WAY
 		glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_DYNAMIC_DRAW);
 
-		// glVertexAttribPointer(int index, int size, int type, boolean
-		// normalized, int stride, long buffer_buffer_offset)
-		// index Specifies the index of the generic vertex attribute to be
-		// modified.
-		// size Specifies the number of components per generic vertex attribute.
-		// Must be 1, 2, 3, 4. Additionally, the symbolic constant GL_BGRA is
-		// accepted.
-		// type Specifies the data type of each component in the array. The
-		// symbolic constants GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT,
-		// GL_UNSIGNED_SHORT, GL_INT, and GL_UNSIGNED_INT, GL_HALF_FLOAT,
-		// GL_FLOAT, GL_DOUBLE are accepted. The initial value is GL_FLOAT
-		// normalized Specifies whether fixed-point data values should be
-		// normalized GL_TRUE or converted directly as fixed-point values
-		// GL_FALSE when they are accessed.
-		// stride Specifies the byte offset between consecutive generic vertex
-		// attributes. If stride is 0, the generic vertex attributes are
-		// understood to be tightly packed in the array. The initial value is 0.
-		// offset Specifies a offset of the first component of the first generic
-		// vertex attribute in the array in the data store of the buffer
-		// currently bound to the GL_ARRAY_BUFFER target. The initial value is
-		// 0.
 		glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0); // setting pointers
 															// in the VAO
 
@@ -243,10 +241,6 @@ public class ObjectTools {
 		colorBuffer.put(array); // uploading color x times in the buffer
 
 		colorBuffer.rewind(); // rewinded the buffer for reading; position = 0
-
-		// VAO = Vertex Array Object (openGL object), a link between shaders and
-		// openGL; stores attributes and pointers
-		// VBO = Vertex Buffer Objects
 		colorBufferObjId = glGenBuffers(); // creating a VBO (BUFFER)
 
 		System.out.println("VBOID:" + colorBufferObjId);
@@ -256,13 +250,10 @@ public class ObjectTools {
 
 		// WHERE, WHAT
 		glBindBuffer(GL_ARRAY_BUFFER, colorBufferObjId); // binds buffer object
-															// to specificed
-															// target
 
 		// WHERE, WHAT, WHAT WAY
 		glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0); // setting pointers
-															// in the VAO
+		glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, 0); // setting pointers in the VAO
 		glBindVertexArray(0); // unbinding vao
 	}
 	

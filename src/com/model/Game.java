@@ -1,6 +1,7 @@
 package com.model;
 
 import java.nio.ByteBuffer;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -15,6 +16,9 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 import org.lwjgl.opengl.PixelFormat;
+
+import com.entities.Shape;
+import com.entities.Triangle;
 
 public class Game {
 
@@ -36,38 +40,37 @@ public class Game {
 
 	public static void start() {
 		Game.init();
-		int numbers = 3;
-		float minSize = 0.02f;
-		float maxSize = 0.06f;
-//		ObjectTools.createRandomPolygon3(numbers, minSize, maxSize);
-//		ObjectTools.createPolygon3(1, 0.2f, 0.2f);
-		ObjectTools.addQuad(0.2f, 0.2f);
-		ObjectTools.addQuad(0.2f, 0.2f);
-		ObjectTools.addQuad(0.2f, 0.2f);
-		ObjectTools.addQuad(0.2f, 0.2f);
-		ObjectTools.addQuad(0.2f, 0.2f);
-//		ObjectTools.addNewVect3(0.2f, 0.2f);
+		int numbers = 1;
+		float minSize = 0.03f;
+		float maxSize = 0.09f;
+//		ObjectTools.createRandomlyPlacedTriangles(numbers, minSize, maxSize);
+		ObjectTools.addQuad(minSize, maxSize);
 		lastFrame = System.currentTimeMillis();
 		gameLoop();
 	}
 
 	private static void gameLoop() {
-
+		float size = 0.2f;
 		while (running) {
 			mousePos = getMousePos();
 			Input.update();
 			currentFrame = getTime();
 			if (checkFrame(interval)) {
 				lastFrame = getTime();
-				ObjectTools.moveTo(congregationPoint);
-				ObjectTools.updateRandomPolygon3(randomArea[0], randomArea[1]);
+				// ObjectTools.storage.addShape(new Triangle(new Vertex(0.0f,
+				// size), new Vertex(size, -size),new Vertex( -size, -size)));
+				// ObjectTools.moveShapesTo(congregationPoint);
+				// ObjectTools.randomlyMoveAllShapes(randomArea[0],
+				// randomArea[1]);
 			}
 
 			checkInput();
-			ObjectTools.updatePolygons(ObjectTools.storage.getStoredPolyArray());
-			ObjectTools.updateColors(ObjectTools.storage.getStoredVColorArray());
-//			System.out.println("@OBJECTS:" + ObjectTools.vec3Storage.length);
-//			 System.out.println(mousePos[0] + " " + mousePos[1]);
+			ObjectTools.updatePolygons(ObjectTools.storage.getStorage()
+					.getStoredPolyArray());
+			ObjectTools.updateColors(ObjectTools.storage.getStorage()
+					.getStoredVColorArray());
+			// System.out.println("@OBJECTS:" + ObjectTools.storage.size());
+			// System.out.println(mousePos[0] + " " + mousePos[1]);
 
 			render();
 
@@ -76,7 +79,7 @@ public class Game {
 			}
 			Display.update();
 			Display.sync(60);
-			
+
 			if (!running || Display.isCloseRequested()
 					|| Input.isKeyPressed(Input.KEY_ESCAPE)) {
 				Game.exit();
@@ -97,25 +100,26 @@ public class Game {
 		if (Input.isKeyDown(Input.KEY_D)) {
 			congregationPoint[0] += 0.03f;
 		}
-//		if (Input.isMouseDown(0)) {
-//			randomArea[0] = -0.09f;
-//			randomArea[1] = 0.09f;
-//		} else {
-//			randomArea[0] = -0.009f;
-//			randomArea[1] = 0.009f;
-//		}
-		
-//		if(Input.isMouseDown(0)){
-////			ObjectTools.addNewVect3(0.02f, 0.01f);
-//			
-//			Object[] arg = ObjectTools.getClickedPoly(mousePos,0.2f);
-//			if(arg != null){
-//				if((float)arg[1] > 0.8f){
-//					((Polygon)arg[0]).setVertice(0, mousePos);
-//				}
-//			}
-//		}
-		
+		// if (Input.isMouseDown(0)) {
+		// randomArea[0] = -0.09f;
+		// randomArea[1] = 0.09f;
+		// } else {
+		// randomArea[0] = -0.009f;
+		// randomArea[1] = 0.009f;
+		// }
+
+		if (Input.isMouseDown(0)) {
+			// ObjectTools.addNewVect3(0.02f, 0.01f);
+
+			Object[] arg = ObjectTools.getClickedShape(mousePos, 0.2f);
+			if (arg != null) {
+
+				// ((Polygon)arg[0]).setVertice(0, mousePos);
+				System.out.println(((Shape) arg[0]));
+
+			}
+		}
+
 		if (Input.isMouseDown(1)) {
 			congregationPoint[0] = getMousePos()[0];
 			congregationPoint[1] = getMousePos()[1];
@@ -128,7 +132,8 @@ public class Game {
 
 	private static float[] getMousePos() { // [0] = mouse.GetX(), [1] =
 											// mouse.GetY()
-		return new float[]{Utils.convertNeutre(Mouse.getX(), width),Utils.convertNeutre(Mouse.getY(), height)};
+		return new float[] { Utils.convertNeutre(Mouse.getX(), width),
+				Utils.convertNeutre(Mouse.getY(), height) };
 	}
 
 	public static void snapShot(ByteBuffer buff) {
@@ -174,28 +179,36 @@ public class Game {
 		} catch (LWJGLException ex) {
 			ex.printStackTrace();
 		}
-//		glEnable(GL_POINT_SPRITE);
-//		glEnable(GL_BLEND);
+		// glEnable(GL_POINT_SPRITE);
+		// glEnable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK); // defines which face (front, back, both) get culled (doesn't get rendered)
-		glFrontFace(GL_CW); // defines the clockwise winding order as being the front of the triangle
+		glCullFace(GL_BACK); // defines which face (front, back, both) get
+								// culled (doesn't get rendered)
+		glFrontFace(GL_CW); // defines the clockwise winding order as being the
+							// front of the triangle
 
 	}
 
 	public static void render() {
 		initRender();
-		
-		
-//		glUniform2f(shProg.uniformOffsetLocation, -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[0], -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1], ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y, 1f)[1]);
-		
+
+		// glUniform2f(shProg.uniformOffsetLocation,
+		// -GameMath.calculateOffset(congregationPoint[0], congregationPoint[1],
+		// ObjectTools.vec3Storage[0].A.X, ObjectTools.vec3Storage[0].A.Y,
+		// 1f)[0], -GameMath.calculateOffset(congregationPoint[0],
+		// congregationPoint[1], ObjectTools.vec3Storage[0].A.X,
+		// ObjectTools.vec3Storage[0].A.Y, 1f)[1]);
+
 		// glDrawArrays(int mode, int first, int count)
-		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.storage.getPolyCount() * 3);
-//		glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); // drawing
-																		// point
+		glDrawArrays(GL_TRIANGLES, 0, ObjectTools.storage.getStorage()
+				.getPolyCount() * 3);
+		// glDrawArrays(GL_POINTS, 0, ObjectTools.vec3Storage.length * 3); //
+		// drawing
+		// point
 		cleanupRender();
 	}
-	
-	public static void initRender(){
+
+	public static void initRender() {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // screen clear color
 		glClear(GL_COLOR_BUFFER_BIT); // clears the screen
 
@@ -206,14 +219,14 @@ public class Game {
 		glEnableVertexAttribArray(1);
 
 	}
-	
-	public static void cleanupRender(){
+
+	public static void cleanupRender() {
 		glDisableVertexAttribArray(0); // disabling location 0
 		glDisableVertexAttribArray(1); // disabling location 1
 		glBindVertexArray(0); // unbinding vao
 		shProg.unBind();
 	}
-	
+
 	public static long getTime() {
 		return System.currentTimeMillis();
 	}

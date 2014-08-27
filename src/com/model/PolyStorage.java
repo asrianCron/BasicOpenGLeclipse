@@ -38,7 +38,7 @@ public class PolyStorage {
 			colorTempStorage[i] = poly.getColor(index);
 		}
 		colorStorage = colorTempStorage;
-		updateStorage();
+//		updateStorage();
 	}
 
 	public void updateStorage(){
